@@ -351,3 +351,12 @@ Next.js → Vercel deployment veya local `npm run dev`
 | 🔁 | Optimize + geliştirme (Transformer, RL) | Sürekli |
 
 ---
+
+crypto-ai-assistant/
+├── backend/          # FastAPI kodu
+├── collector/        # Binance veri toplayıcı
+├── ml-engine/        # Model training
+├── frontend/         # Next.js dashboard
+├── data/             # CSV'ler, test verileri
+├── models/           # Eğitilmiş modeller
+└── .gitignore

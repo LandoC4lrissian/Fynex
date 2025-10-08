@@ -11,6 +11,27 @@ services:
     volumes:
       - timescale_data:/var/lib/postgresql/data
     restart: unless-stopped
+    networks:
+      - crypto-net
+
+  data-collector:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    container_name: crypto_data_collector
+    depends_on:
+      - timescaledb
+    env_file:
+      - .env
+    restart: unless-stopped
+    networks:
+      - crypto-net
+    volumes:
+      - ./backend/logs:/app/logs
+
+networks:
+  crypto-net:
+    driver: bridge
 
 volumes:
   timescale_data:

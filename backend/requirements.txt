@@ -1,0 +1,21 @@
+# WebSocket & Binance
+python-binance==1.0.19
+websockets==12.0
+
+# Async Database - Using newer versions with Python 3.13 support
+asyncpg>=0.30.0
+sqlalchemy>=2.0.35
+
+# Configuration & Environment
+python-dotenv==1.0.0
+
+# Data validation - Using newer versions with Python 3.13 support
+pydantic>=2.10.0
+pydantic-settings>=2.6.0
+
+# Utilities
+python-dateutil==2.8.2
+pytz==2024.1
+
+# HTTP Client (for REST API calls)
+aiohttp>=3.11.0
