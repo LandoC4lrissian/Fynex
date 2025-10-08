@@ -1,0 +1,1 @@
+Binance veri toplayıcı
