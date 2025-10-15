@@ -224,3 +224,168 @@ class OHLCVRepository:
         except Exception as e:
             logger.error(f"Failed to count records: {e}")
             return 0
+
+    async def delete_recent_data(self, hours: int) -> Dict:
+        """
+        Delete OHLCV records from the last N hours
+
+        Args:
+            hours: Number of hours to delete from now
+
+        Returns:
+            Dictionary with deletion statistics per symbol/interval
+        """
+        query = """
+            DELETE FROM ohlcv
+            WHERE open_time >= NOW() - INTERVAL '1 hour' * $1
+            RETURNING symbol, interval
+        """
+
+        stats = {}
+
+        try:
+            async with self.pool.acquire() as conn:
+                rows = await conn.fetch(query, hours)
+
+                # Count deletions per symbol/interval
+                for row in rows:
+                    key = f"{row['symbol']}_{row['interval']}"
+                    stats[key] = stats.get(key, 0) + 1
+
+                total = len(rows)
+                logger.info(f"Deleted {total} records from last {hours} hours")
+
+                return {
+                    'total_deleted': total,
+                    'by_symbol_interval': stats
+                }
+
+        except Exception as e:
+            logger.error(f"Failed to delete recent data: {e}")
+            return {'total_deleted': 0, 'by_symbol_interval': {}}
+
+    async def delete_after_timestamp(self, timestamp: datetime) -> Dict:
+        """
+        Delete OHLCV records after a specific timestamp
+
+        Args:
+            timestamp: Delete all records after this time
+
+        Returns:
+            Dictionary with deletion statistics
+        """
+        query = """
+            DELETE FROM ohlcv
+            WHERE open_time >= $1
+            RETURNING symbol, interval
+        """
+
+        stats = {}
+
+        try:
+            async with self.pool.acquire() as conn:
+                rows = await conn.fetch(query, timestamp)
+
+                # Count deletions per symbol/interval
+                for row in rows:
+                    key = f"{row['symbol']}_{row['interval']}"
+                    stats[key] = stats.get(key, 0) + 1
+
+                total = len(rows)
+                logger.info(f"Deleted {total} records after {timestamp}")
+
+                return {
+                    'total_deleted': total,
+                    'by_symbol_interval': stats,
+                    'timestamp': timestamp
+                }
+
+        except Exception as e:
+            logger.error(f"Failed to delete after timestamp: {e}")
+            return {'total_deleted': 0, 'by_symbol_interval': {}}
+
+    async def delete_by_time_range(
+        self,
+        start_time: datetime,
+        end_time: datetime
+    ) -> Dict:
+        """
+        Delete OHLCV records within a time range
+
+        Args:
+            start_time: Start of deletion range
+            end_time: End of deletion range
+
+        Returns:
+            Dictionary with deletion statistics
+        """
+        query = """
+            DELETE FROM ohlcv
+            WHERE open_time >= $1 AND open_time <= $2
+            RETURNING symbol, interval
+        """
+
+        stats = {}
+
+        try:
+            async with self.pool.acquire() as conn:
+                rows = await conn.fetch(query, start_time, end_time)
+
+                # Count deletions per symbol/interval
+                for row in rows:
+                    key = f"{row['symbol']}_{row['interval']}"
+                    stats[key] = stats.get(key, 0) + 1
+
+                total = len(rows)
+                logger.info(f"Deleted {total} records between {start_time} and {end_time}")
+
+                return {
+                    'total_deleted': total,
+                    'by_symbol_interval': stats,
+                    'start_time': start_time,
+                    'end_time': end_time
+                }
+
+        except Exception as e:
+            logger.error(f"Failed to delete time range: {e}")
+            return {'total_deleted': 0, 'by_symbol_interval': {}}
+
+    async def preview_deletion(self, hours: int) -> Dict:
+        """
+        Preview what would be deleted (dry-run)
+
+        Args:
+            hours: Number of hours to preview
+
+        Returns:
+            Dictionary with preview statistics
+        """
+        query = """
+            SELECT symbol, interval, COUNT(*) as count
+            FROM ohlcv
+            WHERE open_time >= NOW() - INTERVAL '1 hour' * $1
+            GROUP BY symbol, interval
+            ORDER BY symbol, interval
+        """
+
+        try:
+            async with self.pool.acquire() as conn:
+                rows = await conn.fetch(query, hours)
+
+                preview = {}
+                total = 0
+
+                for row in rows:
+                    key = f"{row['symbol']}_{row['interval']}"
+                    count = row['count']
+                    preview[key] = count
+                    total += count
+
+                return {
+                    'total': total,
+                    'by_symbol_interval': preview
+                }
+
+        except Exception as e:
+            logger.error(f"Failed to preview deletion: {e}")
+            return {'total': 0, 'by_symbol_interval': {}}

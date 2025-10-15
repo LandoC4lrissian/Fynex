@@ -13,6 +13,7 @@ services:
     restart: unless-stopped
     networks:
       - crypto-net
+    shm_size: 1gb  # Shared memory artırıldı (ML için gerekli)
 
   data-collector:
     build:

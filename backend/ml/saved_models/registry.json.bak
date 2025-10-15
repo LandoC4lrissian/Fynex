@@ -1,0 +1,25 @@
+{
+  "models": {
+    "lgbm_classifier": {
+      "versions": {
+        "v_20251010_171126": {
+          "version": "v_20251010_171126",
+          "model_name": "lgbm_classifier",
+          "model_type": "lgbm",
+          "created_at": "20251010_171126",
+          "description": "LightGBM classifier for direction prediction",
+          "metrics": {
+            "accuracy": 0.6521739130434783,
+            "precision_macro": 0.4357722004610152,
+            "recall_macro": 0.5042360991451519,
+            "f1_macro": 0.4670466067115147,
+            "precision_SELL": 0.6255422522991497,
+            "recall_SELL": 0.7716181506849316,
+            "f1_SELL": 0.6909439386679445,
+            "precision_HOLD": 0.0,
+            "recall_HOLD": 0.0,
+            "f1_HOLD": 0.0,
+            "precision_BUY": 0.6817743490838959,
+            "recall_BUY": 0.7410901467505241,
+            "f1_BUY": 0.7101958814665997,
+            "confusion_matrix": 

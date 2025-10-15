@@ -1,1 +1,0 @@
-CSV'ler, test verileri
